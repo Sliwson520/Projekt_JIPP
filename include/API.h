@@ -1,6 +1,15 @@
+
+#ifndef API_H
+#define API_H
+
 #pragma once
-#ifdef _BUILD
-#define EXPORT_API __declspec(dllexport)
+
+#if defined(_BUILD) || defined(GAMEENGINE_EXPORTS)
+
+#define ENGINE_API __declspec(dllexport)
 #else
-#define EXPORT_API __declspec(dllimport)
+
+#define ENGINE_API __declspec(dllimport)
+#endif
+
 #endif
