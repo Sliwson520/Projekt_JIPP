@@ -16,5 +16,6 @@ public:
 
 	void update(float deltaTime) override;
 	void draw(sf::RenderWindow& window) override;
+	sf::FloatRect getBounds() const override;
 };
 #endif

@@ -24,4 +24,5 @@ public:
 	void move(int dir, float deltaTime);
 	void takeDamage(int amount);
 	int getDirection() const { return direction; }
+	sf::FloatRect getBounds() const override;
 };

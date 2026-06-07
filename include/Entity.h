@@ -16,4 +16,5 @@ public:
 	float getY() const { return y; }
 	bool isActive() const { return active; }
 	void destroy() { active = false; }
+	virtual sf::FloatRect getBounds() const = 0;
 };

@@ -53,3 +53,7 @@ void Tank::takeDamage(int amount) {
     health -= amount;
     if (health < 0) health = 0;
 }
+
+sf::FloatRect Tank::getBounds() const {
+    return sprite.getGlobalBounds();
+}

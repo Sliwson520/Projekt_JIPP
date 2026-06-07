@@ -30,9 +30,12 @@ void Bullet::update(float deltaTime) {
 		x -= speed * deltaTime;
 	}
 }
-	void Bullet::draw(sf::RenderWindow& window) {
-		if (isActive()) {
-			sprite.setPosition(x, y);
-			window.draw(sprite);
-		}
+void Bullet::draw(sf::RenderWindow& window) {
+	if (isActive()) {
+		sprite.setPosition(x, y);
+		window.draw(sprite);
 	}
+}
+sf::FloatRect Bullet::getBounds() const {
+	return sprite.getGlobalBounds();
+}

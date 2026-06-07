@@ -5,6 +5,7 @@
 #include "Tank.h"
 #include "Bullet.h"
 #include "Entity.h"
+#include "Wall.h"
 
 
 int main() {
@@ -18,6 +19,11 @@ int main() {
 
 	gameObjects.push_back(new Tank(500.0f, 150.0f, 100.0f, 50, "tank.png"));
 	gameObjects.push_back(new Tank(600.0f, 400.0f, 100.0f, 50, "tank.png"));
+
+	gameObjects.push_back(new Wall(400.0f, 300.0f, "wall.png"));
+	gameObjects.push_back(new Wall(450.0f, 300.0f, "wall.png"));
+	gameObjects.push_back(new Wall(500.0f, 300.0f, "wall.png"));
+
 
 	sf::Clock clock;
 	int currentDir = 0;
@@ -69,6 +75,57 @@ int main() {
 
 			if (obj->getX() < 0 || obj->getX() > 800 || obj->getY() < 0 || obj->getY() > 600) {
 				obj->destroy();
+			}
+		}
+
+		for (Entity* objA : gameObjects) {
+			Bullet* bullet = dynamic_cast<Bullet*>(objA);
+			if (bullet && bullet->isActive()) {
+
+				for (Entity* objB : gameObjects) {
+					Tank* tank = dynamic_cast<Tank*>(objB);
+
+					if (tank && tank->isActive() && tank->getBounds().intersects(bullet->getBounds())) {
+
+						if (tank == player) {
+							continue;
+						}
+
+						tank->takeDamage(25);
+
+						bullet->destroy();
+
+						std::cout << "Trafienie! Czolg wroga oberwal!" << std::endl;
+						break;
+					}
+				}
+			}
+		}
+
+		for (Entity* obj : gameObjects) {
+			Bullet* bullet = dynamic_cast<Bullet*>(obj);
+			if (bullet && bullet->isActive()) {
+				for (Entity* wallObj : gameObjects) {
+					Wall* wall = dynamic_cast<Wall*>(wallObj);
+					if (wall && bullet->getBounds().intersects(wall->getBounds())) {
+						bullet->destroy();
+						break;
+					}
+				}
+			}
+
+			Tank* tank = dynamic_cast<Tank*>(obj);
+			if (tank && tank->isActive()) {
+				for (Entity* wallObj : gameObjects) {
+					Wall* wall = dynamic_cast<Wall*>(wallObj);
+					if (wall && tank->getBounds().intersects(wall->getBounds())) {
+						int dir = tank->getDirection();
+						if (dir == 0) tank->move(2, deltaTime * 1.2f);
+						else if (dir == 1) tank->move(3, deltaTime * 1.2f);
+						else if (dir == 2) tank->move(0, deltaTime * 1.2f);
+						else if (dir == 3) tank->move(1, deltaTime * 1.2f);
+					}
+				}
 			}
 		}
 
