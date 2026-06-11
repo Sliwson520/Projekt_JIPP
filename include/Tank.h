@@ -26,4 +26,5 @@ public:
 	int getDirection() const { return direction; }
 	sf::FloatRect getBounds() const override;
 	void heal(int amount);
+	friend class HUD;
 };

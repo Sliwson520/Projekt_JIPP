@@ -1,7 +1,7 @@
 #include "DestructibleWall.h"
 
 DestructibleWall::DestructibleWall(float startX, float startY, const std::string& texturePath)
-    : Wall(startX, startY, texturePath), health(2)
+    : Wall(startX, startY, texturePath), health(1)
 {
 }
 

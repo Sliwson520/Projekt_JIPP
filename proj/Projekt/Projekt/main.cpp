@@ -8,11 +8,13 @@
 #include "Wall.h"
 #include "DestructibleWall.h"
 #include "MedKit.h"
+#include "HUD.h"
 
 int main() {
 	srand(static_cast<unsigned int>(time(NULL)));
 	sf::RenderWindow window(sf::VideoMode(800, 600), "Czolgi JIPP - Projekt");
 	window.setFramerateLimit(60);
+	window.setVerticalSyncEnabled(true);
 	std::vector<Entity*> gameObjects;
 
 	Tank* player = new Tank(200.0f, 200.0f, 150.0f, 100, "tank.png",true);
@@ -25,11 +27,10 @@ int main() {
 	gameObjects.push_back(new Wall(450.0f, 300.0f, "wall.png"));
 	gameObjects.push_back(new Wall(500.0f, 300.0f, "wall.png"));
 
-	gameObjects.push_back(new Wall(400.0f, 300.0f, "wall.png"));
-
-	gameObjects.push_back(new DestructibleWall(450.0f, 300.0f, "destructible_wall.png"));
+	gameObjects.push_back(new DestructibleWall(550.0f, 300.0f, "destructible_wall.png"));
 
 	gameObjects.push_back(new MedKit(300.0f, 100.0f, "medkit.png"));
+	HUD hud("arial.ttf");
 
 
 	sf::Clock clock;
@@ -40,7 +41,7 @@ int main() {
 
 	while (window.isOpen()) {
 		float deltaTime = clock.restart().asSeconds();
-
+		if (deltaTime > 0.1f) deltaTime = 0.1f;
 		sf::Event event;
 
 		while (window.pollEvent(event)) {
@@ -166,8 +167,10 @@ int main() {
 		for (Entity* obj : gameObjects) {
 			obj->draw(window);
 		}
+		hud.draw(window, player);
 
 		window.display();
+
 	}
 		for (Entity* obj : gameObjects) {
 			delete obj;
