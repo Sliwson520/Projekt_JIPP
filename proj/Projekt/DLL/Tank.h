@@ -16,10 +16,11 @@ private:
 	bool isPlayer;
 	float aiTimer;
 	float changeDirTime;
+	float shootTimer;
 
 public:
 	Tank(float startX, float startY, float startSpeed, int hp, const std::string& texturePath, bool player=false);
-	void update(float deltaTime) override;
+	class Bullet* update(float deltaTime) override;
 	void draw(sf::RenderWindow& window) override;
 	void move(int dir, float deltaTime);
 	void takeDamage(int amount);

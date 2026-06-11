@@ -16,7 +16,7 @@ Bullet::Bullet(float startX, float startY, float startSpeed, int dir, const std:
 	else if (direction == 3) sprite.setRotation(270.0f);
 }
 
-void Bullet::update(float deltaTime) {
+Bullet* Bullet::update(float deltaTime) {
 	if (direction == 0) {
 		y -= speed * deltaTime;
 	}
@@ -29,6 +29,7 @@ void Bullet::update(float deltaTime) {
 	else if (direction == 3) {
 		x -= speed * deltaTime;
 	}
+	return nullptr;
 }
 void Bullet::draw(sf::RenderWindow& window) {
 	if (isActive()) {

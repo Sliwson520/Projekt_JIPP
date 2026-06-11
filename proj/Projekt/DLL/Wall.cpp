@@ -12,9 +12,9 @@ Wall::Wall(float startX, float startY, const std::string& texturePath)
     sprite.setPosition(x, y);
 }
 
-void Wall::update(float deltaTime) {
+Bullet* Wall::update(float deltaTime) {
+    return nullptr;
 }
-
 void Wall::draw(sf::RenderWindow& window) {
     if (isActive()) {
         window.draw(sprite);

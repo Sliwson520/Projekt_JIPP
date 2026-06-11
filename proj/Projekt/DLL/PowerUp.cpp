@@ -12,7 +12,9 @@ PowerUp::PowerUp(float startX, float startY, const std::string& texturePath)
     sprite.setPosition(x, y);
 }
 
-void PowerUp::update(float deltaTime) {}
+Bullet* PowerUp::update(float deltaTime) {
+    return nullptr;
+}
 
 void PowerUp::draw(sf::RenderWindow& window) {
     if (isActive()) {

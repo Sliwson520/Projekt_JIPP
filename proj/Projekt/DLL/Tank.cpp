@@ -1,8 +1,9 @@
 #include "Tank.h"
+#include "Bullet.h"
 #include <iostream>
 #include <cstdlib>
 Tank::Tank(float startX, float startY, float startSpeed, int hp, const std::string& texturePath, bool player)
-    : Entity(startX, startY, startSpeed), health(hp), maxHealth(hp), direction(0), isPlayer(player), aiTimer(0.0f),changeDirTime(1.5f)
+    : Entity(startX, startY, startSpeed), health(hp), maxHealth(hp), direction(0), isPlayer(player), aiTimer(0.0f),changeDirTime(1.5f), shootTimer(0.0f)
 {
     if (!texture.loadFromFile(texturePath)) {
         std::cout << "Blad ladowania tekstury w klasie Tank: " << texturePath << std::endl;
@@ -10,19 +11,26 @@ Tank::Tank(float startX, float startY, float startSpeed, int hp, const std::stri
     sprite.setTexture(texture);
     sprite.setOrigin(texture.getSize().x / 2.0f, texture.getSize().y / 2.0f);
 }
-void Tank::update(float deltaTime) {
-    if (!isActive()) return;
+Bullet* Tank::update(float deltaTime) {
+    if (!isActive()) return nullptr;
+
     if (!isPlayer) {
         aiTimer += deltaTime;
+        shootTimer += deltaTime;
+
         if (aiTimer >= changeDirTime) {
             direction = rand() % 4;
             aiTimer = 0.0f;
             changeDirTime = 0.5f + static_cast<float>(rand() % 15) / 10.0f;
         }
-    move(direction, deltaTime);
+        move(direction, deltaTime);
+
+        if (shootTimer >= 1.8f) {
+            shootTimer = 0.0f;
+            return new Bullet(x, y, 300.0f, direction, "bullet.png");
+        }
     }
-
-
+    return nullptr;
 }
 
 void Tank::draw(sf::RenderWindow& window) {

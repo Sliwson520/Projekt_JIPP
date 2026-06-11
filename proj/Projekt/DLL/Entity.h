@@ -10,7 +10,7 @@ protected:
 public:
 	Entity(float startX, float startY, float startSpeed);
 	virtual ~Entity()=default;
-	virtual void update(float deltaTime) = 0;
+	virtual class Bullet* update(float deltaTime) = 0;
 	virtual void draw(sf::RenderWindow& window) = 0;
 	float getX() const { return x; }
 	float getY() const { return y; }

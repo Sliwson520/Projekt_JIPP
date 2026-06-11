@@ -14,7 +14,7 @@ protected:
 public:
     PowerUp(float startX, float startY, const std::string& texturePath);
 
-    void update(float deltaTime) override;
+    class Bullet* update(float deltaTime) override;
     void draw(sf::RenderWindow& window) override;
     sf::FloatRect getBounds() const override;
 

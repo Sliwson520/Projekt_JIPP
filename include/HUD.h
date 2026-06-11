@@ -13,7 +13,9 @@ private:
 public:
     HUD(const std::string& fontPath);
 
-    void draw(sf::RenderWindow& window, class Tank* player);
+    void draw(sf::RenderWindow& window, class Tank* player, int currentScore, int highScore);
+
+    void drawMenu(sf::RenderWindow& window, int highScore);
 };
 
 #endif
