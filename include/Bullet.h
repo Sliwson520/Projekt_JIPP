@@ -11,9 +11,11 @@ private:
 	int direction;
 	sf::Texture texture;
 	sf::Sprite sprite;
+	bool fromPlayer;
+	float speed;
 public:
-	Bullet(float startX, float startY, float startSpeed, int dir, const std::string& texturePath);
-
+	Bullet(float x, float y, float speed, int direction, const std::string& texturePath, bool isPlayerBullet);
+	bool isFromPlayer() const { return fromPlayer; }
 	Bullet* update(float deltaTime) override;
 	void draw(sf::RenderWindow& window) override;
 	sf::FloatRect getBounds() const override;

@@ -1,9 +1,13 @@
 #include "Bullet.h"
 #include <iostream>
 
-Bullet::Bullet(float startX, float startY, float startSpeed, int dir, const std::string& texturePath)
-	: Entity(startX, startY, startSpeed), direction(dir)
+Bullet::Bullet(float x, float y, float speed, int direction, const std::string& texturePath, bool isPlayerBullet)
+	: Entity(x, y,speed)
 {
+	this->speed = speed;
+	this->direction = direction;
+	this->fromPlayer = isPlayerBullet;
+
 	if (!texture.loadFromFile(texturePath)) {
 		std::cout << "Blad ladowania tekstury pocisku: " << texturePath << std::endl;
 	}
@@ -31,12 +35,14 @@ Bullet* Bullet::update(float deltaTime) {
 	}
 	return nullptr;
 }
+
 void Bullet::draw(sf::RenderWindow& window) {
 	if (isActive()) {
 		sprite.setPosition(x, y);
 		window.draw(sprite);
 	}
 }
+
 sf::FloatRect Bullet::getBounds() const {
 	return sprite.getGlobalBounds();
 }

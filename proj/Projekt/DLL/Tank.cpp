@@ -27,7 +27,7 @@ Bullet* Tank::update(float deltaTime) {
 
         if (shootTimer >= 1.8f) {
             shootTimer = 0.0f;
-            return new Bullet(x, y, 300.0f, direction, "bullet.png");
+            return new Bullet(x, y, 300.0f, direction, "bullet.png",false);
         }
     }
     return nullptr;
@@ -60,6 +60,7 @@ void Tank::move(int dir, float deltaTime ) {
 void Tank::takeDamage(int amount) {
     health -= amount;
     if (health < 0) health = 0;
+    this->destroy();
 }
 
 sf::FloatRect Tank::getBounds() const {
