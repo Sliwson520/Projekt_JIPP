@@ -137,15 +137,21 @@ copy /Y "$(SolutionDir)x64\Debug\*.lib" "P:\Projekt\lib"</Command>
   <ItemGroup>
     <ClInclude Include="API.h" />
     <ClInclude Include="Bullet.h" />
+    <ClInclude Include="DestructibleWall.h" />
     <ClInclude Include="Entity.h" />
     <ClInclude Include="Klasa.h" />
+    <ClInclude Include="MedKit.h" />
+    <ClInclude Include="PowerUp.h" />
     <ClInclude Include="Tank.h" />
     <ClInclude Include="Wall.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Bullet.cpp" />
+    <ClCompile Include="DestructibleWall.cpp" />
     <ClCompile Include="Entity.cpp" />
     <ClCompile Include="Klasa.cpp" />
+    <ClCompile Include="MedKit.cpp" />
+    <ClCompile Include="PowerUp.cpp" />
     <ClCompile Include="Tank.cpp" />
     <ClCompile Include="Wall.cpp" />
   </ItemGroup>

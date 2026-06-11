@@ -6,7 +6,8 @@
 #include "Bullet.h"
 #include "Entity.h"
 #include "Wall.h"
-
+#include "DestructibleWall.h"
+#include "MedKit.h"
 
 int main() {
 	srand(static_cast<unsigned int>(time(NULL)));
@@ -23,6 +24,12 @@ int main() {
 	gameObjects.push_back(new Wall(400.0f, 300.0f, "wall.png"));
 	gameObjects.push_back(new Wall(450.0f, 300.0f, "wall.png"));
 	gameObjects.push_back(new Wall(500.0f, 300.0f, "wall.png"));
+
+	gameObjects.push_back(new Wall(400.0f, 300.0f, "wall.png"));
+
+	gameObjects.push_back(new DestructibleWall(450.0f, 300.0f, "destructible_wall.png"));
+
+	gameObjects.push_back(new MedKit(300.0f, 100.0f, "medkit.png"));
 
 
 	sf::Clock clock;
@@ -100,6 +107,7 @@ int main() {
 					}
 				}
 			}
+
 		}
 
 		for (Entity* obj : gameObjects) {
@@ -108,6 +116,11 @@ int main() {
 				for (Entity* wallObj : gameObjects) {
 					Wall* wall = dynamic_cast<Wall*>(wallObj);
 					if (wall && bullet->getBounds().intersects(wall->getBounds())) {
+						DestructibleWall* destWall = dynamic_cast<DestructibleWall*>(wallObj);
+						if (destWall) {
+							destWall->takeDamage(1);
+						}
+
 						bullet->destroy();
 						break;
 					}
@@ -124,6 +137,15 @@ int main() {
 						else if (dir == 1) tank->move(3, deltaTime * 1.2f);
 						else if (dir == 2) tank->move(0, deltaTime * 1.2f);
 						else if (dir == 3) tank->move(1, deltaTime * 1.2f);
+					}
+				}
+			}
+			if (tank && tank == player && tank->isActive()) {
+				for (Entity* powerObj : gameObjects) {
+					PowerUp* power = dynamic_cast<PowerUp*>(powerObj);
+					if (power && power->isActive() && tank->getBounds().intersects(power->getBounds())) {
+						power->applyEffect(tank);
+						break;
 					}
 				}
 			}

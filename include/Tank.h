@@ -25,4 +25,5 @@ public:
 	void takeDamage(int amount);
 	int getDirection() const { return direction; }
 	sf::FloatRect getBounds() const override;
+	void heal(int amount);
 };

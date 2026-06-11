@@ -57,3 +57,9 @@ void Tank::takeDamage(int amount) {
 sf::FloatRect Tank::getBounds() const {
     return sprite.getGlobalBounds();
 }
+
+void Tank::heal(int amount) {
+    health += amount;
+    if (health > maxHealth) health = maxHealth;
+    std::cout << "Uleczono czolg! Aktualne HP: " << health << std::endl;
+}
