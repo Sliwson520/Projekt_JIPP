@@ -86,6 +86,47 @@ int main() {
 			}
 		}
 		else if (state == GAME) {
+			// --- SYSTEM PROGRESYWNEJ TRUDNOŒCI Z LIMITAMI (CAP) ---
+			// Czynnik trudnoœci roœnie wraz z punktami (maksymalnie 1.5x zamiast wczeœniejszych 2.0x)
+			float difficultyFactor = 1.0f + (static_cast<float>(score) / 200.0f) * 0.1f;
+			if (difficultyFactor > 1.5f) difficultyFactor = 1.5f;
+
+			// 1. Czas respawnu (bazowo 4.0s, spada maksymalnie do ok. 2.6s)
+			float currentSpawnCooldown = 4.0f / difficultyFactor;
+
+			static float spawnTimer = 0.0f;
+			spawnTimer += deltaTime;
+
+			if (spawnTimer >= currentSpawnCooldown) {
+				spawnTimer = 0.0f;
+
+				int enemyCount = 0;
+				for (Entity* obj : gameObjects) {
+					Tank* t = dynamic_cast<Tank*>(obj);
+					if (t && t != player && t->isActive()) {
+						enemyCount++;
+					}
+				}
+
+				if (enemyCount < 4) {
+					float randomX = static_cast<float>(200 + rand() % 500);
+					float randomY = static_cast<float>(50 + rand() % 150);
+
+					// 2. LIMIT PRÊDKOŒCI BOTÓW: Maksymalnie 140.0f, ¿eby nie dosta³y "super-turbo"
+					float enemySpeed = 100.0f * difficultyFactor;
+					if (enemySpeed > 140.0f) enemySpeed = 140.0f;
+
+					gameObjects.push_back(new Tank(randomX, randomY, enemySpeed, 50, "tank.png"));
+					std::cout << "Respawn bota! Predkosc: " << enemySpeed << " (Mnoznik: " << difficultyFactor << ")" << std::endl;
+				}
+			}
+
+			// Zwiêkszamy ochronê gracza do 0.5 sekundy, aby ca³kowicie zablokowaæ œmieræ na hita
+			static float playerHitCooldown = 0.0f;
+			if (playerHitCooldown > 0.0f) {
+				playerHitCooldown -= deltaTime;
+			}
+
 			// Sterowanie graczem
 			if (player && player->isActive()) {
 				if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up)) { player->move(0, deltaTime); currentDir = 0; }
@@ -93,8 +134,8 @@ int main() {
 				else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down)) { player->move(2, deltaTime); currentDir = 2; }
 				else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left)) { player->move(3, deltaTime); currentDir = 3; }
 
-				// Strza³ gracza -> flaga 'true' na koñcu konstruktora pocisku
 				if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space) && !spacePressed) {
+					// Pocisk gracza leci z niezmienn¹ prêdkoœci¹ 400.0f
 					gameObjects.push_back(new Bullet(player->getX(), player->getY(), 400.0f, currentDir, "bullet.png", true));
 					spacePressed = true;
 				}
@@ -103,51 +144,61 @@ int main() {
 				}
 			}
 
-			// Aktualizacja pozycji obiektów i przechwytywanie pocisków od botów
+			// Aktualizacja pozycji i generowanie pocisków wrogów
 			std::vector<Bullet*> newEnemyBullets;
 			for (Entity* obj : gameObjects) {
-				Bullet* enemyBullet = obj->update(deltaTime);
-				if (enemyBullet) newEnemyBullets.push_back(enemyBullet);
+				float currentDelta = deltaTime;
+				Tank* isEnemy = dynamic_cast<Tank*>(obj);
+
+				if (isEnemy && isEnemy != player) {
+					// Szybkoœæ prze³adowania botów roœnie o mno¿nik trudnoœci (max 1.5x szybciej strzelaj¹)
+					currentDelta *= difficultyFactor;
+				}
+
+				Bullet* enemyBullet = obj->update(currentDelta);
+
+				// Jeœli bot wystrzeli³ nowy pocisk, modyfikujemy prêdkoœæ tego pocisku w locie!
+				if (enemyBullet) {
+					float bulletSpeed = 300.0f * difficultyFactor;
+					if (bulletSpeed > 450.0f) bulletSpeed = 450.0f;
+
+					// U¿ywamy bezpiecznego settera zamiast bezpoœredniego pola
+					enemyBullet->setSpeed(bulletSpeed);
+
+					newEnemyBullets.push_back(enemyBullet);
+				}
 				if (obj->getX() < 0 || obj->getX() > 800 || obj->getY() < 0 || obj->getY() > 600) obj->destroy();
 			}
 			for (Bullet* b : newEnemyBullets) gameObjects.push_back(b);
 
-			// KOLIZJE: Pocisk -> Czo³g (Styl Battle City - pe³na wymiana ognia)
+			// KOLIZJE: Pocisk -> Czo³g
 			for (Entity* objA : gameObjects) {
 				Bullet* bullet = dynamic_cast<Bullet*>(objA);
 				if (bullet && bullet->isActive()) {
-
 					for (Entity* objB : gameObjects) {
 						Tank* tank = dynamic_cast<Tank*>(objB);
 
-						if (tank && tank->isActive() && tank->getBounds().intersects(bullet->getBounds())) {
-
-							// 1. Przypadek: Pocisk zosta³ wystrzelony przez GRACZA
+						if (tank && tank->isActive() && tank->getHealth() > 0 && tank->getBounds().intersects(bullet->getBounds())) {
 							if (bullet->isFromPlayer()) {
-								if (tank == player) continue; // Gracz nie rani samego siebie
-
-								// Trafienie w bota!
+								if (tank == player) continue;
 								tank->takeDamage(25);
 								bullet->destroy();
-
-								// Jeœli bot wybuch³, dodaj 100 punktów
-								if (!tank->isActive()) {
+								if (tank->getHealth() <= 0 || !tank->isActive()) {
 									score += 100;
 									std::cout << "Zniszczono wroga! Wynik: " << score << std::endl;
 								}
-								std::cout << "Trafienie! Czolg wroga oberwal!" << std::endl;
 								break;
 							}
-
-							// 2. Przypadek: Pocisk zosta³ wystrzelony przez BOTA
 							else {
-								if (tank != player) continue; // Boty nie rani¹ innych botów
+								if (tank != player) continue;
 
-								// Trafienie w Ciebie! Tracisz HP!
-								tank->takeDamage(25);
+								// KLUCZOWA POPRAWKA: Pó³ sekundy (0.5s) bezwzglêdnej ochrony dla gracza
+								if (playerHitCooldown <= 0.0f) {
+									tank->takeDamage(25);
+									playerHitCooldown = 0.5f;
+									std::cout << "Oberwales! Twoje HP wynosi teraz: " << tank->getHealth() << std::endl;
+								}
 								bullet->destroy();
-
-								std::cout << "Oberwales! Twoje HP spada!" << std::endl;
 								break;
 							}
 						}
@@ -185,7 +236,6 @@ int main() {
 						}
 					}
 				}
-
 				if (player && player->isActive() && tank && tank == player) {
 					for (Entity* powerObj : gameObjects) {
 						PowerUp* power = dynamic_cast<PowerUp*>(powerObj);
@@ -196,25 +246,29 @@ int main() {
 					}
 				}
 			}
+
+			// GRANICE MAPY DLA CZÓ£GÓW
 			for (Entity* obj : gameObjects) {
 				Tank* tank = dynamic_cast<Tank*>(obj);
 				if (tank && tank->isActive()) {
-					// Za³ó¿my bezpieczny rozmiar czo³gu (np. murek/tekstura ma ok. 32-50px)
-					// Blokada lewej i prawej krawêdzi (ekran ma 800 px szerokoœci)
-					if (tank->getX() < 20.0f) tank->move(1, deltaTime * 2.0f);      // Cofnij w prawo
-					if (tank->getX() > 780.0f) tank->move(3, deltaTime * 2.0f);     // Cofnij w lewo
-
-					// Blokada górnej i dolnej krawêdzi (ekran ma 600 px wysokoœci)
-					if (tank->getY() < 50.0f) tank->move(2, deltaTime * 2.0f);      // Cofnij w dó³ (uwzglêdniamy miejsce na HUD)
-					if (tank->getY() > 580.0f) tank->move(0, deltaTime * 2.0f);     // Cofnij w górê
+					if (tank->getX() < 20.0f) tank->move(1, deltaTime * 2.0f);
+					if (tank->getX() > 780.0f) tank->move(3, deltaTime * 2.0f);
+					if (tank->getY() < 50.0f) tank->move(2, deltaTime * 2.0f);
+					if (tank->getY() > 580.0f) tank->move(0, deltaTime * 2.0f);
 				}
 			}
-			// Usuwanie martwych obiektów i zarz¹dzanie pamiêci¹
+
+			// USUWANIE MARTWYCH OBIEKTÓW I SPRAWDZANIE KOÑCA GRY
 			for (auto it = gameObjects.begin(); it != gameObjects.end(); ) {
+				Tank* tankCheck = dynamic_cast<Tank*>(*it);
+				if (tankCheck && tankCheck->getHealth() <= 0) {
+					tankCheck->destroy();
+				}
+
 				if (!(*it)->isActive()) {
 					if (*it == player) {
 						player = nullptr;
-						state = GAMEOVER; // Koniec gry po œmierci gracza
+						state = GAMEOVER;
 					}
 					delete* it;
 					it = gameObjects.erase(it);

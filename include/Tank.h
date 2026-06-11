@@ -28,4 +28,5 @@ public:
 	sf::FloatRect getBounds() const override;
 	void heal(int amount);
 	friend class HUD;
+	int getHealth() const { return health; }
 };

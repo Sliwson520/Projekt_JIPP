@@ -19,5 +19,6 @@ public:
 	Bullet* update(float deltaTime) override;
 	void draw(sf::RenderWindow& window) override;
 	sf::FloatRect getBounds() const override;
+	void setSpeed(float newSpeed) { speed = newSpeed; }
 };
 #endif
