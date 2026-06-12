@@ -55,8 +55,6 @@ int main() {
 		}
 
 		// --- LOGIKA ZALE¯NA OD STANU GRY ---
-		// --- LOGIKA ZALE¯NA OD STANU GRY ---
-		// --- LOGIKA ZALE¯NA OD STANU GRY ---
 		if (state == MENU) {
 			if (sf::Keyboard::isKeyPressed(sf::Keyboard::Enter)) {
 				// Czyszczenie starej planszy na wypadek restartu
@@ -70,24 +68,24 @@ int main() {
 				player = new Tank(400.0f, 500.0f, 150.0f, 100, "tank.png", true);
 				gameObjects.push_back(player);
 
-				// --- NOWA MAPA: KRAWDÊZIE PUSTE, W ŒRODKU DU¯E KWADRATOWE WYSPY ---
-				// 12 wierszy (Y) i 16 kolumn (X)
+				// --- POPRAWIONA MAPA: 4 PANCERNE KWADRATY + LUNE ŒCIANKI W ŒRODKU ---
+				// 1 - twarda, 2 - do rozwalenia, 0 - puste pole
 				const int MAP_ROWS = 12;
 				const int MAP_COLS = 16;
 
 				int levelMap[MAP_ROWS][MAP_COLS] = {
-					{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, // Czysta góra - idealna na spawny
+					{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, // Góra czysta (pod spawny botów)
 					{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-					{0, 0, 1, 1, 0, 0, 2, 2, 2, 2, 0, 0, 1, 1, 0, 0}, // Du¿e, stabilne kwadraty 2x2 z '1'
+					{0, 0, 1, 1, 0, 0, 2, 2, 2, 2, 0, 0, 1, 1, 0, 0}, // 4 Kwadraty pancerne (1) w rogach
+					{0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0}, // LuŸniejsze œcianki zniszczalne (2) w œrodku
+					{0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0},
+					{0, 0, 0, 0, 0, 2, 1, 0, 0, 1, 2, 0, 0, 0, 0, 0}, // Centralna sekcja
+					{0, 0, 0, 0, 0, 2, 1, 0, 0, 1, 2, 0, 0, 0, 0, 0},
+					{0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0},
+					{0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0},
 					{0, 0, 1, 1, 0, 0, 2, 2, 2, 2, 0, 0, 1, 1, 0, 0},
 					{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-					{0, 0, 2, 2, 0, 0, 1, 3, 3, 1, 0, 0, 2, 2, 0, 0}, // Œrodek: apteczki zabezpieczone metalem
-					{0, 0, 2, 2, 0, 0, 1, 0, 0, 1, 0, 0, 2, 2, 0, 0},
-					{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-					{0, 0, 1, 1, 0, 0, 2, 2, 2, 2, 0, 0, 1, 1, 0, 0}, // Dolne kwadraty pancerne
-					{0, 0, 1, 1, 0, 0, 2, 2, 2, 2, 0, 0, 1, 1, 0, 0},
-					{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-					{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}  // Czysty dó³ dla gracza
+					{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}  // Dó³ czysty dla gracza
 				};
 
 				// Pêtla buduj¹ca mapê na ekranie
@@ -96,7 +94,6 @@ int main() {
 						float posX = c * 50.0f + 25.0f;
 						float posY = r * 50.0f + 25.0f;
 
-						// Blokada stawiania klocków w miejscu startu gracza
 						if (posX > 300.0f && posX < 500.0f && posY > 450.0f) {
 							continue;
 						}
@@ -107,15 +104,12 @@ int main() {
 						else if (levelMap[r][c] == 2) {
 							gameObjects.push_back(new DestructibleWall(posX, posY, "destructible_wall.png"));
 						}
-						else if (levelMap[r][c] == 3) {
-							gameObjects.push_back(new MedKit(posX, posY, "medkit.png"));
-						}
 					}
 				}
 
-				// Spawny botów w bezpiecznych miejscach u góry ekranu
-				gameObjects.push_back(new Tank(75.0f, 40.0f, 100.0f, 50, "tank.png"));
-				gameObjects.push_back(new Tank(725.0f, 40.0f, 100.0f, 50, "tank.png"));
+				// Startowe boty w bezpiecznych k¹tach
+				gameObjects.push_back(new Tank(75.0f, 40.0f, 100.0f, 50, "enemy_tank.png"));
+				gameObjects.push_back(new Tank(725.0f, 40.0f, 100.0f, 50, "enemy_tank.png"));
 
 				state = GAME;
 			}
@@ -145,26 +139,65 @@ int main() {
 				}
 
 				if (enemyCount < 4) {
-					// --- NOWY SYSTEM: SPAWN TYLKO W K¥TACH MAPY ---
-					float spawnX = 75.0f; // Domyœlnie lewy górny róg
-
-					// Losujemy 0 lub 1. Jeœli wyjdzie 1, przerzucamy spawn do prawego górnego rogu
+					// --- SPAWN TYLKO W K¥TACH MAPY ---
+					float spawnX = 75.0f;
 					if (rand() % 2 == 1) {
 						spawnX = 725.0f;
 					}
+					float spawnY = 40.0f;
 
-					float spawnY = 40.0f; // Sta³a, bezpieczna wysokoœæ w rogu
-
-					// Prêdkoœæ bota (z limitem do 140.0f)
 					float enemySpeed = 100.0f * difficultyFactor;
 					if (enemySpeed > 140.0f) enemySpeed = 140.0f;
 
-					// Dodajemy bota na wylosowanym k¹cie
-					gameObjects.push_back(new Tank(spawnX, spawnY, enemySpeed, 50, "tank.png"));
-					std::cout << "Respawn bota w kacie mapy! X: " << spawnX << ", Predkosc: " << enemySpeed << std::endl;
+					gameObjects.push_back(new Tank(spawnX, spawnY, enemySpeed, 50, "enemy_tank.png"));
+					std::cout << "Respawn bota! Predkosc: " << enemySpeed << " (Mnoznik: " << difficultyFactor << ")" << std::endl;
 				}
 			}
 
+			// --- SYSTEM LOSOWEGO SPAWNU APTECZEK CO 10 SEKUND ---
+			static float medKitTimer = 0.0f;
+			medKitTimer += deltaTime;
+
+			if (medKitTimer >= 10.0f) {
+				medKitTimer = 0.0f;
+
+				int medKitCount = 0;
+				for (Entity* obj : gameObjects) {
+					if (dynamic_cast<MedKit*>(obj) && obj->isActive()) {
+						medKitCount++;
+					}
+				}
+
+				if (medKitCount < 2) {
+					float medKitX = 0.0f;
+					float medKitY = 0.0f;
+					bool validPosition = false;
+
+					while (!validPosition) {
+						medKitX = static_cast<float>(100 + rand() % 600);
+						medKitY = static_cast<float>(100 + rand() % 400);
+
+						validPosition = true;
+
+						// Sprawdzamy, czy apteczka nie nak³ada siê na jak¹kolwiek œcianê (zwyk³¹ lub zniszczaln¹)
+						for (Entity* wallObj : gameObjects) {
+							Wall* wall = dynamic_cast<Wall*>(wallObj);
+							if (wall) {
+								sf::FloatRect testBounds(medKitX - 15.0f, medKitY - 15.0f, 30.0f, 30.0f);
+								if (testBounds.intersects(wall->getBounds())) {
+									validPosition = false;
+									break;
+								}
+							}
+						}
+					}
+
+					gameObjects.push_back(new MedKit(medKitX, medKitY, "medkit.png"));
+					std::cout << "Pojawila sie nowa apteczka na pozycji X: " << medKitX << ", Y: " << medKitY << std::endl;
+				}
+			}
+
+			// Ochrona gracza przed œmierci¹ na hita
 			static float playerHitCooldown = 0.0f;
 			if (playerHitCooldown > 0.0f) {
 				playerHitCooldown -= deltaTime;
@@ -186,7 +219,7 @@ int main() {
 				}
 			}
 
-			// Aktualizacja pozycji i generowanie pocisków wrogów
+			// Aktualizacja pozycji i strzelanie wrogów
 			std::vector<Bullet*> newEnemyBullets;
 			for (Entity* obj : gameObjects) {
 				float currentDelta = deltaTime;
@@ -243,9 +276,9 @@ int main() {
 				}
 			}
 
-			// --- POPRAWIONE KOLIZJE ZE ŒCIANAMI I APTECZKAMI ---
+			// KOLIZJE ZE ŒCIANAMI I APTECZKAMI
 			for (Entity* obj : gameObjects) {
-				// 1. Kolizje pocisków ze œcianami
+				// Pociski -> Œciany
 				Bullet* bullet = dynamic_cast<Bullet*>(obj);
 				if (bullet && bullet->isActive()) {
 					for (Entity* wallObj : gameObjects) {
@@ -261,8 +294,7 @@ int main() {
 					}
 				}
 
-				// 2. Kolizje czo³gów ze œcianami (Z systemem p³ynnego odbijania PUSH_BACK)
-				// 2. Kolizje czo³gów ze œcianami (Z systemem p³ynnego odbijania - NAPRAWIONE PRZYKLEJANIE)
+				// Czo³gi -> Œciany (Z systemem p³ynnego odpychania)
 				Tank* tank = dynamic_cast<Tank*>(obj);
 				if (tank && tank->isActive()) {
 					for (Entity* wallObj : gameObjects) {
@@ -270,40 +302,27 @@ int main() {
 						if (wall && tank->getBounds().intersects(wall->getBounds())) {
 							int dir = tank->getDirection();
 
-							// Gwarantowane, natychmiastowe wypchniêcie poza obrys œciany (w pikselach)
-							const float PUSH_DIST = 5.0f;
-
-							if (dir == 0)      tank->move(2, deltaTime * 2.0f); // Najpierw standardowy ruch w ty³
+							if (dir == 0)      tank->move(2, deltaTime * 2.0f);
 							else if (dir == 1) tank->move(3, deltaTime * 2.0f);
 							else if (dir == 2) tank->move(0, deltaTime * 2.0f);
 							else if (dir == 3) tank->move(1, deltaTime * 2.0f);
 
-							// --- KLUCZOWY FIX: Rêczna korekta pozycji, ¿eby zerwaæ "klej" ---
-							// Wykorzystujemy publiczne metody getX/getY i musimy mieæ mo¿liwoœæ przesuniêcia czo³gu.
-							// Jeœli nie masz metody setPosition, to wymuszenie dodatkowego ruchu w ty³ bez deltaTime za³atwi sprawê:
-							if (dir == 0)      tank->move(2, 0.05f); // Dodatkowy, twardy impuls w dó³
-							else if (dir == 1) tank->move(3, 0.05f); // Dodatkowy, twardy impuls w lewo
-							else if (dir == 2) tank->move(0, 0.05f); // Dodatkowy, twardy impuls w górê
-							else if (dir == 3) tank->move(1, 0.05f); // Dodatkowy, twardy impuls w prawo
-
-							// Dla botów: natychmiast ka¿emy im zmieniæ kierunek, ¿eby nie par³y œlepo w murek
-							if (tank != player) {
-								// Bot zmienia kierunek na losowy, ¿eby natychmiast uciec od œciany
-								// Jeœli chcesz, mo¿emy wymusiæ zmianê kierunku w klasie Tank, 
-								// ale samo twarde odepchniêcie ju¿ go uwolni!
-							}
+							if (dir == 0)      tank->move(2, 0.05f);
+							else if (dir == 1) tank->move(3, 0.05f);
+							else if (dir == 2) tank->move(0, 0.05f);
+							else if (dir == 3) tank->move(1, 0.05f);
 							break;
 						}
 					}
 				}
 
-				// 3. Kolizje gracza z apteczkami
+				// Gracz -> Apteczki
 				if (player && player->isActive() && tank && tank == player) {
 					for (Entity* powerObj : gameObjects) {
-						MedKit* medKit = dynamic_cast<MedKit*>(powerObj); // Bezpoœrednie rzutowanie na MedKit
+						MedKit* medKit = dynamic_cast<MedKit*>(powerObj);
 						if (medKit && medKit->isActive() && tank->getBounds().intersects(medKit->getBounds())) {
-							tank->heal(50); // Apteczka leczy o 50 HP
-							medKit->destroy(); // Usuwamy apteczkê z mapy
+							tank->heal(50);
+							medKit->destroy();
 							break;
 						}
 					}
@@ -314,14 +333,14 @@ int main() {
 			for (Entity* obj : gameObjects) {
 				Tank* tankCheck = dynamic_cast<Tank*>(obj);
 				if (tankCheck && tankCheck->isActive()) {
-					if (tankCheck->getX() < 20.0f) tankCheck->move(1, deltaTime * 2.0f);
-					if (tankCheck->getX() > 780.0f) tankCheck->move(3, deltaTime * 2.0f);
-					if (tankCheck->getY() < 50.0f) tankCheck->move(2, deltaTime * 2.0f);
-					if (tankCheck->getY() > 580.0f) tankCheck->move(0, deltaTime * 2.0f);
+					if (tankCheck->getX() < 25.0f)  tankCheck->move(1, deltaTime * 2.0f);
+					if (tankCheck->getX() > 775.0f) tankCheck->move(3, deltaTime * 2.0f);
+					if (tankCheck->getY() < 25.0f)  tankCheck->move(2, deltaTime * 2.0f);
+					if (tankCheck->getY() > 575.0f) tankCheck->move(0, deltaTime * 2.0f);
 				}
 			}
 
-			// USUWANIE MARTWYCH OBIEKTÓW I SPRAWDZANIE KOÑCA GRY
+			// USUWANIE MARTWYCH OBIEKTÓW
 			for (auto it = gameObjects.begin(); it != gameObjects.end(); ) {
 				Tank* tankCheck = dynamic_cast<Tank*>(*it);
 				if (tankCheck && tankCheck->getHealth() <= 0) {
@@ -357,12 +376,63 @@ int main() {
 				scoreSaved = true;
 			}
 
+			// --- RESTART GRY PO ENTERZE NA IDENTYCZNEJ MAPIE ---
+			if (sf::Keyboard::isKeyPressed(sf::Keyboard::Enter)) {
+				for (Entity* obj : gameObjects) delete obj;
+				gameObjects.clear();
+
+				score = 0;
+				scoreSaved = false;
+
+				player = new Tank(400.0f, 500.0f, 150.0f, 100, "tank.png", true);
+				gameObjects.push_back(player);
+
+				const int MAP_ROWS = 12;
+				const int MAP_COLS = 16;
+
+				int levelMap[MAP_ROWS][MAP_COLS] = {
+					{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+					{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+					{0, 0, 1, 1, 0, 0, 2, 2, 2, 2, 0, 0, 1, 1, 0, 0},
+					{0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0},
+					{0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0},
+					{0, 0, 0, 0, 0, 2, 1, 0, 0, 1, 2, 0, 0, 0, 0, 0},
+					{0, 0, 0, 0, 0, 2, 1, 0, 0, 1, 2, 0, 0, 0, 0, 0},
+					{0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0},
+					{0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0},
+					{0, 0, 1, 1, 0, 0, 2, 2, 2, 2, 0, 0, 1, 1, 0, 0},
+					{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+					{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
+				};
+
+				for (int r = 0; r < MAP_ROWS; ++r) {
+					for (int c = 0; c < MAP_COLS; ++c) {
+						float posX = c * 50.0f + 25.0f;
+						float posY = r * 50.0f + 25.0f;
+
+						if (posX > 300.0f && posX < 500.0f && posY > 450.0f) continue;
+
+						if (levelMap[r][c] == 1) {
+							gameObjects.push_back(new Wall(posX, posY, "wall.png"));
+						}
+						else if (levelMap[r][c] == 2) {
+							gameObjects.push_back(new DestructibleWall(posX, posY, "destructible_wall.png"));
+						}
+					}
+				}
+
+				gameObjects.push_back(new Tank(75.0f, 40.0f, 100.0f, 50, "tank.png"));
+				gameObjects.push_back(new Tank(725.0f, 40.0f, 100.0f, 50, "tank.png"));
+
+				state = GAME;
+			}
+
 			if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape)) {
 				state = MENU;
 			}
 		}
 
-		// --- RENDEROWANIE KLATKI GRAPHICS ---
+		// --- RENDEROWANIE KLATKI ---
 		window.clear(sf::Color(50, 50, 50));
 		if (state == MENU) {
 			hud.drawMenu(window, highScore);

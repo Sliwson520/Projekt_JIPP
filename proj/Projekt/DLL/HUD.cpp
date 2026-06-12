@@ -24,7 +24,7 @@ void HUD::draw(sf::RenderWindow& window, Tank* player, int currentScore, int hig
         window.draw(hpText);
     }
     else {
-        hpText.setString("GAME OVER!\n\nTwoj wynik: " + std::to_string(currentScore) +
+        hpText.setString("GAME OVER!\n\nTwoj wynik: " + std::to_string(currentScore) + "\n\nNacisnij Enter, aby zagrac jeszcze raz."+
             "\n\nNacisnij ESC, aby wrocic do Menu.");
         hpText.setPosition(260.0f, 220.0f);
         hpText.setFillColor(sf::Color::Red);
