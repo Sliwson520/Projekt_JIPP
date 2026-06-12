@@ -22,5 +22,6 @@ void Wall::draw(sf::RenderWindow& window) {
 }
 
 sf::FloatRect Wall::getBounds() const {
-    return sprite.getGlobalBounds();
+    sf::FloatRect bounds = sprite.getGlobalBounds();
+    return sf::FloatRect(bounds.left + 1.0f, bounds.top + 1.0f, bounds.width - 2.0f, bounds.height - 2.0f);
 }

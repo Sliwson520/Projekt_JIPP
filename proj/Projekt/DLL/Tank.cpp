@@ -59,12 +59,15 @@ void Tank::move(int dir, float deltaTime ) {
 }
 void Tank::takeDamage(int amount) {
     health -= amount;
-    if (health < 0) health = 0;
-    this->destroy();
+    if (health < 0) {
+        health = 0;
+        this->destroy();
+    }
 }
 
 sf::FloatRect Tank::getBounds() const {
-    return sprite.getGlobalBounds();
+    sf::FloatRect bounds = sprite.getGlobalBounds();
+    return sf::FloatRect(bounds.left + 2.0f, bounds.top + 2.0f, bounds.width - 4.0f, bounds.height - 4.0f);
 }
 
 void Tank::heal(int amount) {

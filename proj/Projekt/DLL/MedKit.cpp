@@ -7,6 +7,6 @@ MedKit::MedKit(float startX, float startY, const std::string& texturePath)
 }
 
 void MedKit::applyEffect(Tank* player) {
-    player->heal(25);
+    player->heal(50);
     destroy();
 }
